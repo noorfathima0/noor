@@ -184,3 +184,151 @@ contactForm.addEventListener("submit", function (e) {
             submitBtn.disabled = false;
         });
 });
+
+// Custom Cursor Logic//
+
+const cursor = document.querySelector(".custom-cursor");
+const shadow = document.querySelector(".cursor-shadow");
+
+let mouseX = 0;
+let mouseY = 0;
+
+let shadowX = 0;
+let shadowY = 0;
+
+// Track mouse
+document.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  // Main cursor follows instantly
+  cursor.style.left = mouseX + "px";
+  cursor.style.top = mouseY + "px";
+});
+
+// Animate shadow (smooth trailing)
+function animateShadow() {
+  shadowX += (mouseX - shadowX) * 0.15;
+  shadowY += (mouseY - shadowY) * 0.15;
+
+  shadow.style.left = shadowX + "px";
+  shadow.style.top = shadowY + "px";
+
+  requestAnimationFrame(animateShadow);
+}
+
+animateShadow();
+
+const hoverElements = document.querySelectorAll("a, button");
+
+hoverElements.forEach(el => {
+  el.addEventListener("mouseenter", () => {
+    shadow.style.transform = "translate(-50%, -50%) scale(1.5)";
+    shadow.style.opacity = "0.6";
+  });
+
+  el.addEventListener("mouseleave", () => {
+    shadow.style.transform = "translate(-50%, -50%) scale(1)";
+    shadow.style.opacity = "1";
+  });
+});
+
+/* ===========================
+   PROCESS TIMELINE ANIMATION
+   =========================== */
+
+const processSteps = document.querySelectorAll('.process-step');
+const processGrid = document.querySelector('.process-grid');
+
+const processObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+
+      // Animate timeline line
+      if (entry.target === processGrid && entry.isIntersecting) {
+        processGrid.classList.add('line-visible');
+      }
+
+      // Animate steps
+      if (entry.target.classList.contains('process-step')) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          processObserver.unobserve(entry.target); // Animate once
+        }
+      }
+
+    });
+  },
+  {
+    threshold: 0.25,
+    rootMargin: '0px 0px -80px 0px',
+  }
+);
+
+
+// Observe timeline
+if (processGrid) {
+  processObserver.observe(processGrid);
+}
+
+// Observe each step
+processSteps.forEach((step, index) => {
+
+  step.style.transitionDelay = `${index * 0.15}s`;
+
+  processObserver.observe(step);
+});
+
+
+/* ===========================
+   SERVICES SCROLL REVEAL
+   =========================== */
+
+const serviceCards = document.querySelectorAll('.service-card-pro');
+
+const serviceObserver = new IntersectionObserver(
+  (entries) => {
+
+    entries.forEach((entry) => {
+
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        serviceObserver.unobserve(entry.target);
+      }
+
+    });
+
+  },
+  {
+    threshold: 0.2,
+    rootMargin: '0px 0px -60px 0px',
+  }
+);
+
+
+serviceCards.forEach((card, index) => {
+
+  // Stagger animation
+  card.style.transitionDelay = `${index * 0.08 + 0.15}s`;
+
+  serviceObserver.observe(card);
+
+});
+
+// Mobile expand for services
+
+document.querySelectorAll('.service-card-pro').forEach(card => {
+
+  card.addEventListener('click', () => {
+
+    // Close others
+    document.querySelectorAll('.service-card-pro').forEach(c => {
+      if (c !== card) c.classList.remove('active');
+    });
+
+    // Toggle current
+    card.classList.toggle('active');
+
+  });
+
+});
